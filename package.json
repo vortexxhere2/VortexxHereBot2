@@ -1,0 +1,22 @@
+{
+  "name": "youtube-sunucu-botu",
+  "version": "1.0.0",
+  "description": "YouTube sunucuları için hepsi bir arada Discord botu: video duyurusu, ticket, seviye, moderasyon, otomasyon, canvas",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.100",
+    "discord.js": "^14.28.1",
+    "dotenv": "^16.6.1",
+    "mongodb": "^6.22.0",
+    "rss-parser": "^3.13.0"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^12.11.1"
+  }
+}
