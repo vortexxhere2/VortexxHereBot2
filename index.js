@@ -3,17 +3,30 @@ const fs = require('fs');
 const path = require('path');
 const { Client, GatewayIntentBits, Partials, Collection } = require('discord.js');
 
+// Render ve UptimeRobot icin Mini Web Sunucusu
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('Bot aktif ve calisiyor!');
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Web sunucusu ${PORT} portunda dinlemede.`);
+});
+
 if (!process.env.DISCORD_TOKEN) {
-  console.error('❌ DISCORD_TOKEN bulunamadı. .env dosyasını oluşturup tokenini yaz (.env.example dosyasına bak).');
+  console.error('DISCORD_TOKEN bulunamadi. .env dosyasini kontrol edin.');
   process.exit(1);
 }
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers, // Developer Portal'dan açılmalı
+    GatewayIntentBits.GuildMembers, 
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent, // Developer Portal'dan açılmalı
+    GatewayIntentBits.MessageContent, 
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildModeration,
   ],
@@ -23,7 +36,7 @@ const client = new Client({
 client.commands = new Collection();
 client.components = new Collection();
 
-// ---- Komutları yükle (src/commands/<kategori>/*.js) ----
+// Komutlari yukle
 const commandsDir = path.join(__dirname, 'src', 'commands');
 for (const category of fs.readdirSync(commandsDir)) {
   const catPath = path.join(commandsDir, category);
@@ -38,12 +51,12 @@ for (const category of fs.readdirSync(commandsDir)) {
   }
 }
 
-// ---- Buton / menü işleyicileri ----
+// Buton ve menu isleyicileri
 client.components.set('ticket', require('./src/components/ticket'));
 client.components.set('gw', require('./src/components/giveaway'));
 client.components.set('rr', require('./src/components/rolepanel'));
 
-// ---- Olayları yükle ----
+// Olaylari yukle
 const eventsDir = path.join(__dirname, 'src', 'events');
 for (const file of fs.readdirSync(eventsDir).filter((f) => f.endsWith('.js'))) {
   const event = require(path.join(eventsDir, file));
@@ -56,14 +69,14 @@ for (const file of fs.readdirSync(eventsDir).filter((f) => f.endsWith('.js'))) {
 process.on('unhandledRejection', (e) => console.error('[unhandledRejection]', e));
 process.on('uncaughtException', (e) => console.error('[uncaughtException]', e));
 
-console.log(`📦 ${client.commands.size} komut yüklendi.`);
+console.log(`${client.commands.size} komut yuklendi.`);
 (async () => {
   try {
     const kind = await require('./src/db').init();
-    console.log(`🗄️ Veritabanı: ${kind}`);
+    console.log(`Veritabani: ${kind}`);
   } catch (e) {
-    console.error('❌ Veritabanına bağlanılamadı:', e.message);
-    if (process.env.MONGODB_URI) console.error('   MONGODB_URI doğru mu? Atlas kullanıyorsan IP erişim listesine (Network Access) sunucunun IP\'sini ekledin mi?');
+    console.error('Veritabanina baglanilamadi:', e.message);
+    if (process.env.MONGODB_URI) console.error('MONGODB_URI dogru mu? Atlas IP erisim listesini kontrol edin.');
     process.exit(1);
   }
   await client.login(process.env.DISCORD_TOKEN);
